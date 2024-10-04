@@ -7,14 +7,16 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 # Initialize the Flask app
 app = Flask(__name__)
 
+os.environ['OPEN_API_KEY'] = "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"
 client = OpenAI( api_key=os.environ.get('OPEN_API_KEY') )
 
 # Directory to save uploaded files
-UPLOAD_FOLDER = 'Uploads'
+UPLOAD_FOLDER = './Uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
 # Predefined file path for existing files in the dropdown
-EXISTING_FILES_PATH = 'STU1/female'
+EXISTING_FILES_PATH = './STU1/female'
 
 # Function to extract patient data
 def extract_patient_data(file_path):
