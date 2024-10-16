@@ -7,16 +7,16 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 # Initialize the Flask app
 app = Flask(__name__)
 
-os.environ['OPEN_API_KEY'] = "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"
+os.environ['OPEN_API_KEY'] = "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"
 client = OpenAI( api_key=os.environ.get('OPEN_API_KEY') )
 
 # Directory to save uploaded files
-UPLOAD_FOLDER = './Uploads'
+UPLOAD_FOLDER = '/Users/vijaykirandegala/Downloads/FHIR_STU4_Filtering/Reference_code/App/mcode-transilator/Uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Predefined file path for existing files in the dropdown
-EXISTING_FILES_PATH = './STU1/female'
+EXISTING_FILES_PATH = '/Users/vijaykirandegala/Downloads/FHIR_STU4_Filtering/Sample_FHIR_Data/STU1/female/'
 
 # Function to extract patient data
 def extract_patient_data(file_path):
@@ -125,7 +125,7 @@ def generate_patient_data_response(prompt):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a highly capable assistant that reads and processes patient data, Generate this like a clinical care report including to be published. All responses should be delivered in properly structured HTML, optimized for clear display on a web page."},
+            {"role": "system", "content": "You are a helpful assistant tasked with reading patient data and outputting only the translated patient data, without including any additional information or explanations. Please structure the output in a clean and organized format."},
             {"role": "user", "content": prompt}
         ],
     )
@@ -159,7 +159,20 @@ def upload_file():
         prompt = f"Patient data: {extracted_data}. Find the Clinical Trials That Match this profile."
         Clinical_trials_matched = generate_clinical_trial_response(prompt)
 
-        prompt = f"Patient data: {extracted_data}. Write the Patient Data into a readable format"
+        prompt = f"""Patient data: {extracted_data}. Write a detailed, structured description of the patient’s clinical data to match them to relevant clinical trials. Ensure that the paragraph includes the following key details:
+
+Patient demographics: Include age, gender, race/ethnicity, location, and other relevant identifiers.
+Diagnosis: State the primary diagnosis, including any relevant staging or grading, and secondary diagnoses, if applicable.
+Medical history: Summarize pertinent medical history, including prior treatments, surgeries, or conditions.
+Genetic information: Highlight any genetic mutations or biomarkers relevant to the patient’s condition.
+Symptoms and presentation: Describe the current symptoms, onset, and progression of the disease.
+Treatment history: Include current and past treatments, such as medications, therapies, or clinical interventions, and the patient’s response to these treatments.
+Relevant lab results: Provide key lab findings, imaging results, or other diagnostic data that are crucial for trial eligibility.
+Additional considerations: Note any lifestyle factors, family history of the disease, or other conditions that might affect trial participation.
+
+The final paragraph should be well-organized, coherent, and written in a narrative style to help an LLM efficiently retrieve relevant clinical trials through a RAG system.
+
+"""
         readble_patient_data = generate_patient_data_response(prompt)
 
         return jsonify({
